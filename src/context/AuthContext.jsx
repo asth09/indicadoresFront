@@ -61,25 +61,28 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const checkLogin = async () => {
-      const cookies = Cookies.get();
-      if (!cookies.token) {
-        setIsAuthenticated(false);
-        setLoading(false);
-        return;
-      }
-
       try {
-        const res = await verifyTokenRequest(cookies.token);
-        console.log(res);
-        if (!res.data) return setIsAuthenticated(false);
+        // Hacemos la petición directamente al backend sin verificar con js-cookie.
+        // El navegador adjuntará la cookie HTTPOnly automáticamente.
+        const res = await verifyTokenRequest();
+        
+        if (!res.data) {
+          setIsAuthenticated(false);
+          setLoading(false);
+          return;
+        }
+
         setIsAuthenticated(true);
         setUser(res.data);
         setLoading(false);
       } catch (error) {
+        // Si el backend responde 401/403, significa que la cookie no existe o expiró
         setIsAuthenticated(false);
+        setUser(null);
         setLoading(false);
       }
     };
+
     checkLogin();
   }, []);
 
