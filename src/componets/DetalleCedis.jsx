@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getCedisByNameRequest } from '../api/cedis';
+import { getCedisByNameRequest, updateCedisRequest } from '../api/cedis';
 import { Save, X, Plus, Edit3, ChevronUp, ChevronDown } from 'lucide-react';
 import DashboardSafetyCards  from "./DashboardSafetyCards";
 import { useTheme } from '../context/ThemeContext';
@@ -83,35 +83,29 @@ const DetalleCedis = () => {
     };
 
     const handleSave = async () => {
-    try {
-    const { _id, createdAt, updatedAt, __v, ...datosLimpios } = cedi;
-    
-    if (datosLimpios.delegados) {
-        datosLimpios.delegados = datosLimpios.delegados.map(({ _id, ...resto }) => resto);
-    }
-    if (datosLimpios.patronos) {
-        datosLimpios.patronos = datosLimpios.patronos.map(({ _id, ...resto }) => resto);
-    }
+        try {
+            // Limpieza de campos generados por MongoDB antes de enviar
+            const { _id, createdAt, updatedAt, __v, ...datosLimpios } = cedi;
+            
+            if (datosLimpios.delegados) {
+                datosLimpios.delegados = datosLimpios.delegados.map(({ _id, ...resto }) => resto);
+            }
+            if (datosLimpios.patronos) {
+                datosLimpios.patronos = datosLimpios.patronos.map(({ _id, ...resto }) => resto);
+            }
 
-    const respuesta = await axios.put(`http://localhost:3000/api/cedi/${cedi._id}`, datosLimpios);
-    
-    // Si llegó aquí, todo salió bien
-    setEditMode(false);
-    alert("Datos actualizados correctamente");
+            // 2. USAR LA INSTANCIA DE AXIOS A TRAVÉS DE LA FUNCIÓN DE LA API
+            await updateCediRequest(cedi._id, datosLimpios);
+            
+            setEditMode(false);
+            alert("Datos actualizados correctamente");
 
-} catch (error) {
-    // 🔍 Validamos si la petición realmente se completó con éxito (Status 200 o 204)
-    if (error.response?.status === 200 || error.response?.status === 204) {
-        setEditMode(false);
-        alert("Datos actualizados correctamente");
-        return; 
-    }
-
-    // Si es un error real de red o base de datos, se muestra este
-    console.error("Error real del servidor:", error.response?.data || error.message);
-    alert(`Error al guardar: ${error.response?.data?.message || "Revisa la consola"}`);
-}
-};
+        } catch (error) {
+            console.error("Error al actualizar el CEDI:", error);
+            const mensaje = error.response?.data?.message || "Error al actualizar los datos";
+            alert(mensaje);
+        }
+    };
 
     // --- VISTAS DE ESTADO CONTROLLADAS ---
     if (loading) return (
