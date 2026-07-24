@@ -60,31 +60,28 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const checkLogin = async () => {
-      try {
-        // Hacemos la petición directamente al backend sin verificar con js-cookie.
-        // El navegador adjuntará la cookie HTTPOnly automáticamente.
-        const res = await verifyTokenRequest();
-        
-        if (!res.data) {
-          setIsAuthenticated(false);
-          setLoading(false);
-          return;
-        }
-
+  const checkLogin = async () => {
+    try {
+      const res = await verifyTokenRequest();
+      
+      if (res.data) {
         setIsAuthenticated(true);
         setUser(res.data);
-        setLoading(false);
-      } catch (error) {
-        // Si el backend responde 401/403, significa que la cookie no existe o expiró
+      } else {
         setIsAuthenticated(false);
-        setUser(null);
-        setLoading(false);
       }
-    };
+    } catch (error) {
+      console.error("Error al verificar token:", error);
+      setIsAuthenticated(false);
+      setUser(null);
+    } finally {
+      // 💡 Esto garantiza que el loader desaparezca SIEMPRE
+      setLoading(false);
+    }
+  };
 
-    checkLogin();
-  }, []);
+  checkLogin();
+}, []);
 
   /*useEffect(() => {
     const token = localStorage.getItem('token');
