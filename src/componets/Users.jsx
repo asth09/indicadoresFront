@@ -57,7 +57,7 @@ const TableUser = () => {
           <ul className="list-group list-group-flush">
             {users.length > 0 ? (
               users.map((u) => {
-                const isAdmin = u.role?.toLowerCase() === 'admin';
+                const isAdmin = u.role?.toUpperCase() === 'ADMIN';
                 
                 return (
                   <li 
@@ -94,7 +94,7 @@ const TableUser = () => {
                     </div>
 
                     {/* Ajustado para apuntar a /user/:id en concordancia con tu backend */}
-                    {isAuthenticated && user?.role?.toLowerCase() === 'admin' && (
+                    {isAuthenticated && user?.role?.toUpperCase() === 'ADMIN' && (
                       <Link 
                         to={`/user/${u._id}`} 
                         className="btn btn-sm btn-outline-secondary rounded-pill px-3"
