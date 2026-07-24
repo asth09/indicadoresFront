@@ -22,7 +22,7 @@ function App() {
               <Route path="/contacto" element={<h1>Contacto Page</h1>} />
 
               {/* Aquí es donde proteges las rutas */}
-              <Route element={<ProtectedRoute />}>
+              <Route element={<ProtectedRoute allowedRoles={['ADMIN']}/>}>
                 <Route path="/" element={<HomePages/>} />
                 <Route path="/user" element={<UserPages/>} />
                 <Route path="/user/:id" element={<UserFormPage />} />
