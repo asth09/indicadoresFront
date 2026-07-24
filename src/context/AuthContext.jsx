@@ -60,28 +60,28 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-  const checkLogin = async () => {
-    try {
-      const res = await verifyTokenRequest();
-      
-      if (res.data) {
+    const checkLogin = async () => {
+      const cookies = Cookies.get();
+      if (!cookies.token) {
+        setIsAuthenticated(false);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const res = await verifyTokenRequest(cookies.token);
+        console.log(res);
+        if (!res.data) return setIsAuthenticated(false);
         setIsAuthenticated(true);
         setUser(res.data);
-      } else {
+        setLoading(false);
+      } catch (error) {
         setIsAuthenticated(false);
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error al verificar token:", error);
-      setIsAuthenticated(false);
-      setUser(null);
-    } finally {
-      // 💡 Esto garantiza que el loader desaparezca SIEMPRE
-      setLoading(false);
-    }
-  };
-
-  checkLogin();
-}, []);
+    };
+    checkLogin();
+  }, []);
 
   /*useEffect(() => {
     const token = localStorage.getItem('token');
